@@ -3,3 +3,9 @@
 /lib
 /lightning_logs
 /share
+
+**/.vscode
+**/lightning_logs
+**/data
+**/checkpoints
+**/2

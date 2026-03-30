@@ -1,0 +1,5 @@
+pytorch-lightning
+torchvision
+mlflow
+optuna
+pandas
