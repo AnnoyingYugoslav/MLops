@@ -1,0 +1,67 @@
+version: '3.8'
+
+services:
+  # --------------------------------------------------------
+  # SERVICE 1: Local MLFlow Tracking Server
+  # --------------------------------------------------------
+  mlflow:
+    build: .
+    container_name: mlflow_server
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./mlruns:/app/mlruns
+    command: >
+      mlflow server 
+      --host 0.0.0.0 
+      --port 5000 
+      --backend-store-uri sqlite:///app/mlruns/mlflow.db 
+      --default-artifact-root /app/mlruns
+      --allowed-hosts "mlflow,mlflow:5000,localhost,localhost:5000"
+
+  # --------------------------------------------------------
+  # SERVICE 2: Background Dev / Training Container
+  # --------------------------------------------------------
+  trainer:
+    build: .
+    container_name: model_trainer
+    volumes:
+      - .:/app
+    environment:
+      - MLFLOW_TRACKING_URI=http://mlflow:5000
+    command: tail -f /dev/null
+    depends_on:
+      - mlflow
+    # ENABLE GPU SUPPORT (Remove the 'deploy' block if you are on a CPU-only machine)
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
+  # --------------------------------------------------------
+  # SERVICE 3: BentoML Model Serving API  ← NEW
+  # --------------------------------------------------------
+  bentoml:
+    build:
+      context: .
+      dockerfile: Dockerfile.serve
+    container_name: mnist_server
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./checkpoints:/app/checkpoints   # mount trained checkpoint
+      - bentoml_store:/root/bentoml      # persist model store between restarts
+    environment:
+      - BENTOML_HOME=/root/bentoml
+    # 1) export checkpoint → BentoML store  2) serve
+    command: >
+      sh -c "python save_model.py --checkpoint checkpoints/best-model.ckpt &&
+             bentoml serve service:MNISTClassifier --host 0.0.0.0 --port 3000 --reload"
+    depends_on:
+      - mlflow
+
+volumes:
+  bentoml_store:

@@ -1,0 +1,19 @@
+service: "service:MNISTClassifier"
+
+labels:
+  owner: ml-team
+  project: mnist-homework
+
+include:
+  - "service.py"
+  - "train.py"
+  - "save_model.py"
+
+python:
+  packages:
+    - torch
+    - torchvision
+    - pytorch-lightning
+    - bentoml
+    - pillow
+    - numpy
