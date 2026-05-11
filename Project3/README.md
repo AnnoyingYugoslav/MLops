@@ -94,19 +94,19 @@ python client.py --host <EC2-PUBLIC-IP> --port 3000
 
 **Example output:**
 
-```
-── Request 1: POST /predict_image  (golden_retriever) ──────────────
-  Status : 200
-  Body   : {
-      "top_prediction": "golden retriever",
-      "confidence": 0.9241,
-      "top_k": [
-          {"rank": 1, "class_id": 207, "label": "golden retriever", "confidence": 0.9241},
-          {"rank": 2, "class_id": 208, "label": "Labrador retriever", "confidence": 0.0412},
-          ...
-      ]
-  }
-```
+---
+
+python3 -c "
+import base64, json
+with open('example.png', 'rb') as f:
+    b64 = base64.b64encode(f.read()).decode()
+with open('/tmp/payload.json', 'w') as f:
+    json.dump({'body': {'image_b64': b64, 'top_k': 5}}, f)
+"
+
+curl -s -X POST http://localhost:3000/predict_image \
+  -H "Content-Type: application/json" \
+  -d @/tmp/payload.json | python3 -m json.tool
 
 ---
 
