@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  bentoml:
+    build:
+      context: .
+      dockerfile: Dockerfile.serve
+    container_name: resnet18_server
+    ports:
+      - "3000:3000"
+    volumes:
+      - bentoml_store:/root/bentoml   # persist model store between restarts
+    environment:
+      - BENTOML_HOME=/root/bentoml
+
+volumes:
+  bentoml_store:

@@ -1,0 +1,19 @@
+service: "service:ImageNetClassifier"
+
+labels:
+  owner: ml-team
+  project: imagenet-hw3
+
+include:
+  - "service.py"
+  - "save_model.py"
+  - "imagenet_classes.json"
+
+python:
+  packages:
+    - torch
+    - torchvision
+    - bentoml
+    - pillow
+    - numpy
+    - pydantic
