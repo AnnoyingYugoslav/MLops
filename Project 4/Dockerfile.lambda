@@ -1,0 +1,15 @@
+FROM resnet18_classifier:atrx2ukylwghmwgn
+
+USER root
+RUN chmod -R 755 /home/bentoml
+
+COPY --from=public.ecr.aws/awsguru/aws-lambda-adapter:1.0.0 /lambda-adapter /opt/extensions/lambda-adapter
+
+ENV PORT=3000
+ENV AWS_LWA_READINESS_CHECK_PATH="/livez"
+ENV BENTOML_HOME=/tmp/bentoml
+
+ENTRYPOINT ["/bin/bash", "-c", "mkdir -p /tmp/bentoml/models && cp -R /home/bentoml/bento/models/* /tmp/bentoml/models/ && /home/bentoml/bento/env/docker/entrypoint.sh"]
+
+CMD ["serve"]
+EXPOSE 3000

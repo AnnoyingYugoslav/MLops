@@ -1,0 +1,22 @@
+service: "service:ImageNetClassifier"
+
+labels:
+  owner: ml-team
+  project: imagenet-hw3
+
+include:
+  - "service.py"
+  - "imagenet_classes.json"
+
+python:
+  extra_index_url:
+    - "https://download.pytorch.org/whl/cpu"
+  packages:
+    - torch
+    - torchvision
+    - pillow
+    - numpy
+    - pydantic
+
+models:
+  - "resnet18_imagenet:latest"
