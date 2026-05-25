@@ -55,6 +55,9 @@ class MNISTModel(L.LightningModule):
     def configure_optimizers(self):
         return torch.optim.Adam(self.parameters(), lr=self.learning_rate)
     
+    def forward(self, x):
+        return self.layers(x)
+    
 def objective(trial):
     lr = trial.suggest_float("lr", 1e-4, 1e-1, log=True)
 
@@ -81,7 +84,7 @@ def objective(trial):
     return trainer.callback_metrics["val_loss"].item()
 
 def main():
-    optimize = True 
+    optimize = False 
 
     if optimize:
         study = optuna.create_study(direction="minimize")
